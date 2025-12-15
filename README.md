@@ -29,7 +29,8 @@
 | Blockchain | ethers.js, ERC721 NFT (Base Sepolia)              |
 | Storage    | Cloudflare R2                                     |
 | AI         | Kolosal AI (Fraud Detection), Gemini AI (NFT Art) |
-| Styling    | Tailwind CSS v4, shadcn/ui                        |
+| CMS        | Ghost CMS (Blog)                                  |
+| Styling    | Tailwind CSS v4, shadcn/ui, Framer Motion         |
 | Testing    | Vitest                                            |
 
 ## Features
@@ -52,6 +53,14 @@
 - **Web3 Support Tickets** - NFT holders can submit complaints via wallet connection
 - **Auto Product Detection** - System detects owned products from NFT
 - **Brand/Admin Routing** - Tickets route to brand, fallback to admin
+
+### Public Pages
+
+- **Landing & Marketing** - About, Features, Pricing, Showcase pages
+- **Company** - Careers, Contact pages with form integration
+- **Legal** - Privacy Policy, Terms & Conditions, Security documentation
+- **Blog** - Ghost CMS integration with pagination support
+- **Resources** - FAQ, API Documentation (Swagger)
 
 ## Quick Start
 
@@ -89,20 +98,49 @@ NFT_CONTRACT_ADDRESS, NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, GEMINI_API_KEY
 
 # Optional - AI
 KOLOSAL_API_KEY
+
+# Optional - Blog
+NEXT_PUBLIC_TOKEN="ghost_content_api_key"  # Ghost CMS Content API Key
 ```
 
 ## Routes
 
-| Route            | Description          |
-| ---------------- | -------------------- |
-| `/`              | Landing page         |
-| `/login`         | Authentication       |
-| `/scan`          | QR scanner           |
-| `/verify/[code]` | Tag verification     |
-| `/support`       | Web3 support tickets |
-| `/explorer`      | Blockchain explorer  |
-| `/manage/*`      | Admin dashboard      |
-| `/docs`          | Swagger API docs     |
+### Public Routes
+
+| Route            | Description               |
+| ---------------- | ------------------------- |
+| `/`              | Landing page              |
+| `/about`         | About company & team      |
+| `/features`      | Features showcase         |
+| `/pricing`       | Pricing plans             |
+| `/showcase`      | Success stories           |
+| `/careers`       | Job openings              |
+| `/contact`       | Contact form              |
+| `/blog`          | Blog articles (Ghost CMS) |
+| `/privacy`       | Privacy policy            |
+| `/terms`         | Terms & conditions        |
+| `/security`      | Security practices        |
+| `/faqs`          | FAQ page                  |
+| `/login`         | Authentication            |
+| `/register`      | User registration         |
+| `/scan`          | QR scanner                |
+| `/verify/[code]` | Tag verification          |
+| `/support`       | Web3 support tickets      |
+| `/explorer`      | Blockchain explorer       |
+| `/docs`          | Swagger API docs          |
+
+### Admin Routes
+
+| Route              | Description             |
+| ------------------ | ----------------------- |
+| `/manage`          | Dashboard home          |
+| `/manage/brands`   | Brand management        |
+| `/manage/products` | Product CRUD            |
+| `/manage/tags`     | Tag management          |
+| `/manage/nfts`     | NFT monitoring          |
+| `/manage/tickets`  | Support tickets         |
+| `/manage/users`    | User management (admin) |
+| `/manage/profile`  | Profile settings        |
 
 ## Scripts
 
@@ -129,17 +167,21 @@ docker run -p 3000:3000 -e DATABASE_URL="..." -e AUTH_SECRET="..." etags
 
 ```
 src/
-├── app/           # Next.js App Router
-│   ├── api/       # API Routes
-│   ├── manage/    # Admin Dashboard
-│   └── support/   # Web3 Support
+├── app/                # Next.js App Router
+│   ├── api/            # API Routes
+│   ├── manage/         # Admin Dashboard
+│   ├── about/          # Public pages (about, features, pricing, etc.)
+│   ├── blog/           # Blog with Ghost CMS
+│   └── support/        # Web3 Support
 ├── lib/
-│   ├── actions/   # Server Actions
-│   └── *.ts       # Utilities (db, auth, r2, blockchain)
+│   ├── actions/        # Server Actions
+│   └── *.ts            # Utilities (db, auth, r2, blockchain)
 ├── components/
-│   ├── ui/        # shadcn/ui components
-│   └── landing/   # Landing page components
-└── tests/         # Test setup & mocks
+│   ├── ui/             # shadcn/ui components
+│   ├── landing/        # Landing page components
+│   ├── blog/           # Blog components (Grid, Pagination)
+│   └── faq/            # FAQ components
+└── tests/              # Test setup & mocks
 ```
 
 ## NFT Collectible Flow
@@ -159,8 +201,13 @@ src/
 | Phase 3 | 🔜     | Distribution Tracking, Supply Chain                                    |
 | Phase 4 | 🔜     | Blockchain Warranty                                                    |
 | Phase 5 | ✅     | Web3 Support Tickets                                                   |
+| Phase 6 | ✅     | Public Pages & Blog (Ghost CMS)                                        |
 
 See [ROADMAP.md](./ROADMAP.md) for details.
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
 
 ## License
 
