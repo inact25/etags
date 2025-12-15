@@ -23,6 +23,21 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '*.cloudflarestorage.com',
       },
+      {
+        // Ghost CMS blog images
+        protocol: 'https',
+        hostname: 'blog.javapixa.com',
+      },
+      {
+        // Unsplash images (used by Ghost)
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        // Ghost CDN
+        protocol: 'https',
+        hostname: 'static.ghost.org',
+      },
     ],
   },
 };
