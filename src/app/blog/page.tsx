@@ -3,74 +3,49 @@ import { Navbar } from '@/components/landing/Navbar';
 import { Footer } from '@/components/landing/Footer';
 import { BlogGrid } from '@/components/blog/BlogGrid';
 import { BlogPagination } from '@/components/blog/BlogPagination';
-import axios from 'axios';
+import {
+  getGhostPosts,
+  getGhostErrorMessage,
+  type GhostPost,
+  type GhostPagination,
+} from '@/lib/services/ghost';
 
 export const metadata: Metadata = {
   title: 'Blog - Etags',
   description:
     'Insights, berita terbaru, dan artikel mendalam tentang blockchain, product authentication, dan teknologi Web3.',
+  keywords: [
+    'blog',
+    'blockchain',
+    'product authentication',
+    'web3',
+    'etags insights',
+  ],
+  openGraph: {
+    title: 'Blog - Etags',
+    description:
+      'Insights tentang blockchain, product authentication, dan teknologi Web3.',
+  },
 };
 
 // Force dynamic rendering to handle pagination correctly
 export const dynamic = 'force-dynamic';
 export const revalidate = 60; // Revalidate every 60 seconds
 
-interface GhostPagination {
-  page: number;
-  limit: number;
-  pages: number;
-  total: number;
-  next: number | null;
-  prev: number | null;
-}
-
-interface GhostResponse {
-  posts: Array<{
-    title: string;
-    excerpt: string;
-    url: string;
-    feature_image: string;
-    published_at: string;
-  }>;
-  meta: {
-    pagination: GhostPagination;
-  };
-}
-
-const POSTS_PER_PAGE = 9;
-
-const getPostData = async (page: number = 1): Promise<GhostResponse> => {
-  const token = process.env.NEXT_PUBLIC_TOKEN;
-  if (!token) {
-    throw new Error('NEXT_PUBLIC_TOKEN is not set');
-  }
-
-  // Construct the full URL
-  const apiUrl = `https://blog.javapixa.com/ghost/api/content/posts/?key=${token}&limit=${POSTS_PER_PAGE}&page=${page}&fields=title,excerpt,url,feature_image,published_at`;
-
-  const result = await axios.get<GhostResponse>(apiUrl);
-  return result.data;
-};
-
-export default async function BlogPage({
-  searchParams,
-}: {
+interface BlogPageProps {
   searchParams: Promise<{ page?: string }>;
-}) {
+}
+
+export default async function BlogPage({ searchParams }: BlogPageProps) {
   const params = await searchParams;
   const currentPage = Number(params.page) || 1;
-  let posts: Array<{
-    title: string;
-    excerpt: string;
-    url: string;
-    feature_image: string;
-    published_at: string;
-  }> = [];
+
+  let posts: GhostPost[] = [];
   let pagination: GhostPagination | null = null;
-  let error = null;
+  let error: string | null = null;
 
   try {
-    const data = await getPostData(currentPage);
+    const data = await getGhostPosts(currentPage);
     posts = data.posts || [];
     pagination = data.meta?.pagination || null;
   } catch (e) {
@@ -79,18 +54,7 @@ export default async function BlogPage({
       console.error('Failed to fetch blog posts:', e);
     }
 
-    // User-friendly error message
-    if (e instanceof Error && e.message === 'NEXT_PUBLIC_TOKEN is not set') {
-      error = 'Konfigurasi blog belum lengkap. Mohon hubungi administrator.';
-    } else if (
-      e instanceof Error &&
-      (e.message.includes('ENOTFOUND') || e.message.includes('network'))
-    ) {
-      error =
-        'Tidak dapat terhubung ke server blog. Periksa koneksi internet Anda.';
-    } else {
-      error = 'Gagal memuat artikel blog. Silakan coba lagi nanti.';
-    }
+    error = getGhostErrorMessage(e);
   }
 
   return (
@@ -103,7 +67,6 @@ export default async function BlogPage({
 
       <Navbar />
 
-      {/* Main Content */}
       <main className="relative z-10 pt-32 pb-16">
         <div className="container mx-auto px-4 sm:px-6">
           {/* Hero Section */}
@@ -117,13 +80,20 @@ export default async function BlogPage({
             </p>
           </div>
 
-          {/* Blog Grid */}
+          {/* Error State */}
           {error ? (
             <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center max-w-2xl mx-auto">
               <p className="text-red-600">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-4 px-6 py-2 bg-[#2B4C7E] text-white rounded-lg hover:bg-[#1E3A5F] transition-colors"
+              >
+                Coba Lagi
+              </button>
             </div>
           ) : (
             <>
+              {/* Blog Grid */}
               <BlogGrid posts={posts} />
 
               {/* Pagination */}
@@ -134,6 +104,15 @@ export default async function BlogPage({
                   hasNext={pagination.next !== null}
                   hasPrev={pagination.prev !== null}
                 />
+              )}
+
+              {/* Empty State */}
+              {posts.length === 0 && !error && (
+                <div className="text-center py-16">
+                  <p className="text-[#606060] text-lg">
+                    Belum ada artikel yang dipublikasikan.
+                  </p>
+                </div>
               )}
             </>
           )}
