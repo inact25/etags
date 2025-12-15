@@ -21,17 +21,19 @@ export function BlogPagination({
   const searchParams = useSearchParams();
 
   const navigateToPage = (page: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (page === 1) {
-      params.delete('page');
-    } else {
-      params.set('page', page.toString());
-    }
-    const queryString = params.toString();
-    router.push(`/blog${queryString ? `?${queryString}` : ''}`);
+    // Build the URL with search params
+    const url = page === 1 ? '/blog' : `/blog?page=${page}`;
 
-    // Scroll to top smoothly
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Navigate to the new page
+    router.push(url);
+
+    // Force a refresh to ensure server component re-renders
+    router.refresh();
+
+    // Scroll to top smoothly after navigation
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
   };
 
   // Generate page numbers to display
