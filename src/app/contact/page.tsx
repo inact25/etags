@@ -8,23 +8,143 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useState } from 'react';
+import { toast } from 'sonner';
+import {
+  validateContactForm,
+  sanitizeContactForm,
+  type ContactFormData,
+  type ValidationError,
+} from '@/lib/validations/contact';
 
 const MotionDiv = motion.div;
 const MotionH1 = motion.h1;
 const MotionP = motion.p;
 
 export default function ContactPage() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
     company: '',
     subject: '',
     message: '',
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+
+    // Reset field errors
+    setFieldErrors({});
+    setIsSubmitting(true);
+
+    try {
+      // Client-side validation
+      const sanitizedData = sanitizeContactForm(formData);
+      const validation = validateContactForm(sanitizedData);
+
+      if (!validation.isValid) {
+        // Convert validation errors to field-keyed object
+        const errors: Record<string, string> = {};
+        validation.errors.forEach((err: ValidationError) => {
+          errors[err.field] = err.message;
+        });
+        setFieldErrors(errors);
+
+        toast.error('Validasi Gagal', {
+          description: 'Mohon periksa kembali form Anda',
+        });
+
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Submit to API
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(sanitizedData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        // Handle specific error codes
+        if (result.code === 'RATE_LIMIT_EXCEEDED') {
+          toast.error('Terlalu Banyak Permintaan', {
+            description:
+              result.error || 'Silakan coba lagi dalam beberapa menit',
+          });
+        } else if (result.code === 'VALIDATION_ERROR' && result.errors) {
+          // Server-side validation errors
+          const errors: Record<string, string> = {};
+          result.errors.forEach((err: ValidationError) => {
+            errors[err.field] = err.message;
+          });
+          setFieldErrors(errors);
+
+          toast.error('Validasi Gagal', {
+            description: result.error || 'Data form tidak valid',
+          });
+        } else {
+          toast.error('Gagal Mengirim Pesan', {
+            description: result.error || 'Terjadi kesalahan server',
+          });
+        }
+
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Success
+      toast.success('Pesan Terkirim!', {
+        description:
+          result.message ||
+          'Terima kasih telah menghubungi kami. Kami akan segera merespons pesan Anda.',
+      });
+
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        company: '',
+        subject: '',
+        message: '',
+      });
+    } catch (error) {
+      // Network or unexpected errors
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        toast.error('Koneksi Bermasalah', {
+          description:
+            'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.',
+        });
+      } else {
+        toast.error('Terjadi Kesalahan', {
+          description:
+            'Silakan coba lagi atau hubungi kami via email di hello@etags.id',
+        });
+      }
+
+      // Log error in development only
+      if (process.env.NODE_ENV === 'development') {
+        console.error(
+          'Contact form error:',
+          error instanceof Error ? error.message : 'Unknown error'
+        );
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Clear field error when user starts typing
+  const handleFieldChange = (field: keyof ContactFormData, value: string) => {
+    setFormData({ ...formData, [field]: value });
+    if (fieldErrors[field]) {
+      setFieldErrors({ ...fieldErrors, [field]: '' });
+    }
   };
 
   const contactInfo = [
@@ -158,11 +278,22 @@ export default function ContactPage() {
                       placeholder="John Doe"
                       value={formData.name}
                       onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
+                        handleFieldChange('name', e.target.value)
                       }
                       required
-                      className="border-[#A8A8A8]/30 focus:border-[#2B4C7E]"
+                      className={`border-[#A8A8A8]/30 focus:border-[#2B4C7E] ${
+                        fieldErrors.name ? 'border-red-500' : ''
+                      }`}
+                      aria-invalid={!!fieldErrors.name}
+                      aria-describedby={
+                        fieldErrors.name ? 'name-error' : undefined
+                      }
                     />
+                    {fieldErrors.name && (
+                      <p id="name-error" className="text-red-600 text-sm mt-1">
+                        {fieldErrors.name}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-[#0C2340] mb-2">
@@ -173,11 +304,22 @@ export default function ContactPage() {
                       placeholder="john@example.com"
                       value={formData.email}
                       onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
+                        handleFieldChange('email', e.target.value)
                       }
                       required
-                      className="border-[#A8A8A8]/30 focus:border-[#2B4C7E]"
+                      className={`border-[#A8A8A8]/30 focus:border-[#2B4C7E] ${
+                        fieldErrors.email ? 'border-red-500' : ''
+                      }`}
+                      aria-invalid={!!fieldErrors.email}
+                      aria-describedby={
+                        fieldErrors.email ? 'email-error' : undefined
+                      }
                     />
+                    {fieldErrors.email && (
+                      <p id="email-error" className="text-red-600 text-sm mt-1">
+                        {fieldErrors.email}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div>
@@ -186,13 +328,24 @@ export default function ContactPage() {
                   </label>
                   <Input
                     type="text"
-                    placeholder="Nama Perusahaan"
+                    placeholder="Nama Perusahaan (opsional)"
                     value={formData.company}
                     onChange={(e) =>
-                      setFormData({ ...formData, company: e.target.value })
+                      handleFieldChange('company', e.target.value)
                     }
-                    className="border-[#A8A8A8]/30 focus:border-[#2B4C7E]"
+                    className={`border-[#A8A8A8]/30 focus:border-[#2B4C7E] ${
+                      fieldErrors.company ? 'border-red-500' : ''
+                    }`}
+                    aria-invalid={!!fieldErrors.company}
+                    aria-describedby={
+                      fieldErrors.company ? 'company-error' : undefined
+                    }
                   />
+                  {fieldErrors.company && (
+                    <p id="company-error" className="text-red-600 text-sm mt-1">
+                      {fieldErrors.company}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[#0C2340] mb-2">
@@ -203,34 +356,60 @@ export default function ContactPage() {
                     placeholder="Apa yang ingin Anda diskusikan?"
                     value={formData.subject}
                     onChange={(e) =>
-                      setFormData({ ...formData, subject: e.target.value })
+                      handleFieldChange('subject', e.target.value)
                     }
                     required
-                    className="border-[#A8A8A8]/30 focus:border-[#2B4C7E]"
+                    className={`border-[#A8A8A8]/30 focus:border-[#2B4C7E] ${
+                      fieldErrors.subject ? 'border-red-500' : ''
+                    }`}
+                    aria-invalid={!!fieldErrors.subject}
+                    aria-describedby={
+                      fieldErrors.subject ? 'subject-error' : undefined
+                    }
                   />
+                  {fieldErrors.subject && (
+                    <p id="subject-error" className="text-red-600 text-sm mt-1">
+                      {fieldErrors.subject}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[#0C2340] mb-2">
                     Pesan *
                   </label>
                   <Textarea
-                    placeholder="Ceritakan lebih detail tentang kebutuhan Anda..."
+                    placeholder="Ceritakan lebih detail tentang kebutuhan Anda... (minimal 20 karakter)"
                     value={formData.message}
                     onChange={(e) =>
-                      setFormData({ ...formData, message: e.target.value })
+                      handleFieldChange('message', e.target.value)
                     }
                     required
                     rows={6}
-                    className="border-[#A8A8A8]/30 focus:border-[#2B4C7E] resize-none"
+                    className={`border-[#A8A8A8]/30 focus:border-[#2B4C7E] resize-none ${
+                      fieldErrors.message ? 'border-red-500' : ''
+                    }`}
+                    aria-invalid={!!fieldErrors.message}
+                    aria-describedby={
+                      fieldErrors.message ? 'message-error' : undefined
+                    }
                   />
+                  {fieldErrors.message && (
+                    <p id="message-error" className="text-red-600 text-sm mt-1">
+                      {fieldErrors.message}
+                    </p>
+                  )}
+                  <p className="text-xs text-[#606060] mt-1">
+                    {formData.message.length}/5000 karakter
+                  </p>
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-[#2B4C7E] hover:bg-[#1E3A5F] text-white"
+                  disabled={isSubmitting}
+                  className="w-full bg-[#2B4C7E] hover:bg-[#1E3A5F] text-white disabled:opacity-50 disabled:cursor-not-allowed"
                   size="lg"
                 >
                   <Send className="w-4 h-4 mr-2" />
-                  Kirim Pesan
+                  {isSubmitting ? 'Mengirim...' : 'Kirim Pesan'}
                 </Button>
               </form>
             </MotionDiv>

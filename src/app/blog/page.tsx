@@ -11,6 +11,10 @@ export const metadata: Metadata = {
     'Insights, berita terbaru, dan artikel mendalam tentang blockchain, product authentication, dan teknologi Web3.',
 };
 
+// Force dynamic rendering to handle pagination correctly
+export const dynamic = 'force-dynamic';
+export const revalidate = 60; // Revalidate every 60 seconds
+
 interface GhostPagination {
   page: number;
   limit: number;
@@ -33,26 +37,28 @@ interface GhostResponse {
   };
 }
 
-const POSTS_PER_PAGE = 12;
+const POSTS_PER_PAGE = 9;
 
 const getPostData = async (page: number = 1): Promise<GhostResponse> => {
   const token = process.env.NEXT_PUBLIC_TOKEN;
-  const url = process.env.NEXT_PUBLIC_GHOST_URL;
   if (!token) {
     throw new Error('NEXT_PUBLIC_TOKEN is not set');
   }
-  const result = await axios.get<GhostResponse>(
-    `https://${url}/ghost/api/content/posts/?key=${token}&limit=${POSTS_PER_PAGE}&page=${page}&fields=title,excerpt,url,feature_image,published_at&include=tags,authors`
-  );
+
+  // Construct the full URL
+  const apiUrl = `https://blog.javapixa.com/ghost/api/content/posts/?key=${token}&limit=${POSTS_PER_PAGE}&page=${page}&fields=title,excerpt,url,feature_image,published_at`;
+
+  const result = await axios.get<GhostResponse>(apiUrl);
   return result.data;
 };
 
 export default async function BlogPage({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: Promise<{ page?: string }>;
 }) {
-  const currentPage = Number(searchParams.page) || 1;
+  const params = await searchParams;
+  const currentPage = Number(params.page) || 1;
   let posts: Array<{
     title: string;
     excerpt: string;
@@ -68,8 +74,23 @@ export default async function BlogPage({
     posts = data.posts || [];
     pagination = data.meta?.pagination || null;
   } catch (e) {
-    console.error('Failed to fetch blog posts:', e);
-    error = 'Gagal memuat artikel blog. Silakan coba lagi nanti.';
+    // Log error details in development
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Failed to fetch blog posts:', e);
+    }
+
+    // User-friendly error message
+    if (e instanceof Error && e.message === 'NEXT_PUBLIC_TOKEN is not set') {
+      error = 'Konfigurasi blog belum lengkap. Mohon hubungi administrator.';
+    } else if (
+      e instanceof Error &&
+      (e.message.includes('ENOTFOUND') || e.message.includes('network'))
+    ) {
+      error =
+        'Tidak dapat terhubung ke server blog. Periksa koneksi internet Anda.';
+    } else {
+      error = 'Gagal memuat artikel blog. Silakan coba lagi nanti.';
+    }
   }
 
   return (
