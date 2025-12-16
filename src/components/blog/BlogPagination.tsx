@@ -19,20 +19,11 @@ export function BlogPagination({
 }: BlogPaginationProps) {
   const router = useRouter();
 
-  const navigateToPage = (page: number) => {
-    // Build the URL with search params
+  const navigateToPage = async (page: number) => {
     const url = page === 1 ? '/blog' : `/blog?page=${page}`;
-
-    // Navigate to the new page
-    router.push(url);
-
-    // Force a refresh to ensure server component re-renders
+    await router.push(url);
     router.refresh();
-
-    // Scroll to top smoothly after navigation
-    setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 100);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Generate page numbers to display
