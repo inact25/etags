@@ -7,7 +7,7 @@ import type { StatItem } from '@/types/common';
 const MotionDiv = motion.div;
 
 export function StatsSection() {
-  const stats: StatItem[] = ABOUT_STATS as unknown as StatItem[];
+  const stats: StatItem[] = ABOUT_STATS;
   return (
     <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
       {stats.map((stat, index) => (

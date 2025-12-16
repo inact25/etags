@@ -1,17 +1,20 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 export function PricingCTA() {
+  const prefersReducedMotion = useReducedMotion();
   return (
     <motion.div
       className="text-center bg-gradient-to-br from-[#2B4C7E]/10 to-[#1E3A5F]/5 border-2 border-[#2B4C7E]/30 rounded-3xl p-12"
-      initial={{ opacity: 0, y: 20 }}
+      initial={
+        prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
+      }
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
+      transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.5 }}
     >
       <h2 className="text-3xl font-bold text-[#0C2340] mb-4">
         Masih Ada Pertanyaan?

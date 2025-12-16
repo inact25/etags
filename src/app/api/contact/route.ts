@@ -44,9 +44,7 @@ export async function POST(request: NextRequest) {
         {
           status: 429,
           headers: {
-            'Retry-After': Math.ceil(
-              rateLimitResult.retryAfter! / 1000
-            ).toString(),
+            'Retry-After': rateLimitResult.retryAfter!.toString(),
             'X-RateLimit-Limit': RATE_LIMIT_CONFIG.maxRequests.toString(),
             'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
             'X-RateLimit-Reset': rateLimitResult.resetTime.toString(),

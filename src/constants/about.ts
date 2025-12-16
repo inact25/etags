@@ -61,4 +61,4 @@ export const ABOUT_STATS = [
   { value: '99.9%', label: 'Uptime Sistem' },
   { value: '<1dtk', label: 'Waktu Verifikasi' },
   { value: 'Gas-Free', label: 'NFT Minting' },
-] as const;
+];

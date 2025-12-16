@@ -1,10 +1,11 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { CONTACT_REASONS } from '@/constants';
 import type { ContactReason } from '@/types/common';
 
 export function ContactReasons() {
+  const prefersReducedMotion = useReducedMotion();
   const reasons: ContactReason[] =
     CONTACT_REASONS as unknown as ContactReason[];
   return (
@@ -19,10 +20,18 @@ export function ContactReasons() {
             <motion.div
               key={reason.title}
               className="bg-white border-2 border-[#2B4C7E]/20 rounded-2xl p-6 hover:shadow-xl transition-shadow"
-              initial={{ opacity: 0, y: 20 }}
+              initial={
+                prefersReducedMotion
+                  ? { opacity: 1, y: 0 }
+                  : { opacity: 0, y: 20 }
+              }
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              transition={
+                prefersReducedMotion
+                  ? { duration: 0 }
+                  : { duration: 0.5, delay: index * 0.1 }
+              }
             >
               <div className="text-[#2B4C7E] mb-4">
                 <Icon size={40} />

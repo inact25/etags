@@ -34,7 +34,7 @@ export interface GhostPostsResponse {
 }
 
 // Ghost API Configuration
-const GHOST_API_URL = 'https://blog.javapixa.com/ghost/api/content';
+const GHOST_API_URL = process.env.NEXT_PUBLIC_GHOST_URL;
 const GHOST_API_KEY = process.env.NEXT_PUBLIC_TOKEN;
 const POSTS_PER_PAGE = 12;
 
@@ -112,35 +112,6 @@ export async function getGhostPosts(
     }
 
     throw new Error('Failed to fetch blog posts from Ghost CMS');
-  }
-}
-
-/**
- * Fetches a single post by slug
- * @param slug - Post slug
- * @returns Promise with post data
- */
-export async function getGhostPostBySlug(
-  slug: string
-): Promise<GhostPost | null> {
-  try {
-    validateConfig();
-
-    const apiUrl = buildApiUrl('posts/slug', {
-      slug,
-      fields: 'title,excerpt,url,feature_image,published_at,html',
-    });
-
-    const response = await axios.get<{ posts: GhostPost[] }>(apiUrl, {
-      timeout: 10000,
-    });
-
-    return response.data.posts[0] || null;
-  } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error(`Failed to fetch post by slug: ${slug}`, error);
-    }
-    return null;
   }
 }
 

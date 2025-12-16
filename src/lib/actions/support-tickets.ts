@@ -23,8 +23,9 @@ export async function getNFTsByWallet(walletAddress: string) {
   });
 
   // Get product details for each NFT
-  const nftsWithProducts = await Promise.all(
-    nfts.map(async (nft) => {
+
+  return await Promise.all(
+    nfts.map(async (nft: (typeof nfts)[number]) => {
       const productIds = (nft.tag.product_ids as number[]) || [];
       const products = await prisma.product.findMany({
         where: { id: { in: productIds } },
@@ -36,8 +37,6 @@ export async function getNFTsByWallet(walletAddress: string) {
       };
     })
   );
-
-  return nftsWithProducts;
 }
 
 // Create support ticket
