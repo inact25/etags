@@ -229,22 +229,41 @@ export async function GET(request: NextRequest) {
     });
 
     // Calculate scan statistics
-    const totalScans = tag.scans.length;
-    const uniqueFingerprints = new Set(tag.scans.map((s) => s.fingerprint_id));
-    const uniqueScanners = uniqueFingerprints.size;
-    const scanLocations = [
-      ...new Set(
-        tag.scans
-          .filter((s) => s.location_name)
-          .map((s) => s.location_name as string)
-      ),
-    ];
+    type ScanRow = {
+      fingerprint_id: string | null;
+      location_name: string | null;
+      created_at: Date;
+      scan_number: number;
+      is_first_hand: 0 | 1 | null;
+      source_info?: string | null;
+    };
 
-    const firstScan = tag.scans[tag.scans.length - 1];
-    const lastScan = tag.scans[0];
+    const scans = tag.scans as unknown as ScanRow[];
+
+    const totalScans = scans.length;
+    // Count unique non-empty fingerprint IDs
+    const uniqueFingerprints = new Set(
+      scans
+        .map((s) => s.fingerprint_id)
+        .filter((id): id is string => typeof id === 'string' && id.length > 0)
+    );
+    const uniqueScanners = uniqueFingerprints.size;
+    const scanLocations: string[] = Array.from(
+      new Set(
+        scans
+          .map((s) => s.location_name)
+          .filter(
+            (name): name is string =>
+              typeof name === 'string' && name.length > 0
+          )
+      )
+    );
+
+    const firstScan = scans[scans.length - 1];
+    const lastScan = scans[0];
 
     // Build scan history
-    const scanHistory = tag.scans.map((s) => ({
+    const scanHistory = scans.map((s) => ({
       scanNumber: s.scan_number,
       createdAt: s.created_at.toISOString(),
       locationName: s.location_name || undefined,
@@ -295,10 +314,15 @@ export async function GET(request: NextRequest) {
 
     // Check multiple locations in short time
     let multipleLocationsInShortTime = false;
-    if (tag.scans.length >= 2) {
-      const recentScans = tag.scans.slice(0, 5);
+    if (scans.length >= 2) {
+      const recentScans = scans.slice(0, 5);
       const uniqueRecentLocations = new Set(
-        recentScans.filter((s) => s.location_name).map((s) => s.location_name)
+        recentScans
+          .map((s) => s.location_name)
+          .filter(
+            (name): name is string =>
+              typeof name === 'string' && name.length > 0
+          )
       );
       if (uniqueRecentLocations.size >= 3) {
         // Check if within 24 hours

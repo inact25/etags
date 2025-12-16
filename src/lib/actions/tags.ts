@@ -52,7 +52,7 @@ async function getBrandProductIds(brandId: number): Promise<number[]> {
     where: { brand_id: brandId },
     select: { id: true },
   });
-  return products.map((p) => p.id);
+  return products.map((p: { id: number }) => p.id);
 }
 
 // Helper to check if tag belongs to user's brand
@@ -109,7 +109,7 @@ export async function getTags(page: number = 1, limit: number = 10) {
   // Filter tags for brand users
   let filteredTags = allTags;
   if (!isAdmin) {
-    filteredTags = allTags.filter((tag) => {
+    filteredTags = allTags.filter((tag: (typeof allTags)[number]) => {
       const productIds = tag.product_ids as number[];
       return productIds.some((id) => brandProductIds.includes(id));
     });
@@ -120,7 +120,7 @@ export async function getTags(page: number = 1, limit: number = 10) {
 
   // Fetch related products for each tag
   const tagsWithProducts = await Promise.all(
-    paginatedTags.map(async (tag) => {
+    paginatedTags.map(async (tag: (typeof paginatedTags)[number]) => {
       const productIds = tag.product_ids as number[];
       const products = await prisma.product.findMany({
         where: { id: { in: productIds } },
@@ -780,10 +780,12 @@ export async function getTagScans(
       orderBy: { created_at: 'desc' },
     });
 
-    const uniqueFingerprints = new Set(scans.map((s) => s.fingerprint_id));
+    const uniqueFingerprints = new Set(
+      scans.map((s: (typeof scans)[number]) => s.fingerprint_id)
+    );
 
     return {
-      scans: scans.map((s) => ({
+      scans: scans.map((s: (typeof scans)[number]) => ({
         id: s.id,
         fingerprintId: s.fingerprint_id,
         ipAddress: s.ip_address,
@@ -800,9 +802,15 @@ export async function getTagScans(
       })),
       totalScans: scans.length,
       uniqueScanners: uniqueFingerprints.size,
-      claimedCount: scans.filter((s) => s.is_claimed === 1).length,
-      firstHandCount: scans.filter((s) => s.is_first_hand === 1).length,
-      secondHandCount: scans.filter((s) => s.is_first_hand === 0).length,
+      claimedCount: scans.filter(
+        (s: (typeof scans)[number]) => s.is_claimed === 1
+      ).length,
+      firstHandCount: scans.filter(
+        (s: (typeof scans)[number]) => s.is_first_hand === 1
+      ).length,
+      secondHandCount: scans.filter(
+        (s: (typeof scans)[number]) => s.is_first_hand === 0
+      ).length,
     };
   } catch (error) {
     console.error('Get tag scans error:', error);
@@ -848,7 +856,7 @@ export async function getAllTagScanLocations(): Promise<TagScanMapStats> {
       const allTags = await prisma.tag.findMany({
         select: { id: true },
       });
-      accessibleTagIds = allTags.map((t) => t.id);
+      accessibleTagIds = allTags.map((t: { id: number }) => t.id);
     } else if (userBrandId) {
       // Brand users can only see their brand's tags
       const brandProductIds = await getBrandProductIds(userBrandId);
@@ -857,11 +865,11 @@ export async function getAllTagScanLocations(): Promise<TagScanMapStats> {
       });
 
       accessibleTagIds = allTags
-        .filter((tag) => {
+        .filter((tag: { id: number; product_ids: unknown }) => {
           const productIds = tag.product_ids as number[];
           return productIds.some((id) => brandProductIds.includes(id));
         })
-        .map((t) => t.id);
+        .map((t: { id: number; product_ids: unknown }) => t.id);
     }
 
     if (accessibleTagIds.length === 0) {
@@ -889,12 +897,17 @@ export async function getAllTagScanLocations(): Promise<TagScanMapStats> {
       orderBy: { created_at: 'desc' },
     });
 
-    const uniqueFingerprints = new Set(scans.map((s) => s.fingerprint_id));
+    const uniqueFingerprints = new Set(
+      scans.map((s: (typeof scans)[number]) => s.fingerprint_id)
+    );
 
     // Filter scans with valid location data
     const locationsWithCoords = scans
-      .filter((s) => s.latitude !== null && s.longitude !== null)
-      .map((s) => ({
+      .filter(
+        (s: (typeof scans)[number]) =>
+          s.latitude !== null && s.longitude !== null
+      )
+      .map((s: (typeof scans)[number]) => ({
         id: s.id,
         tagId: s.tag_id,
         tagCode: s.tag.code,
@@ -909,9 +922,15 @@ export async function getAllTagScanLocations(): Promise<TagScanMapStats> {
       totalScans: scans.length,
       scansWithLocation: locationsWithCoords.length,
       uniqueScanners: uniqueFingerprints.size,
-      claimedCount: scans.filter((s) => s.is_claimed === 1).length,
-      firstHandCount: scans.filter((s) => s.is_first_hand === 1).length,
-      secondHandCount: scans.filter((s) => s.is_first_hand === 0).length,
+      claimedCount: scans.filter(
+        (s: (typeof scans)[number]) => s.is_claimed === 1
+      ).length,
+      firstHandCount: scans.filter(
+        (s: (typeof scans)[number]) => s.is_first_hand === 1
+      ).length,
+      secondHandCount: scans.filter(
+        (s: (typeof scans)[number]) => s.is_first_hand === 0
+      ).length,
       locations: locationsWithCoords,
     };
   } catch (error) {

@@ -27,13 +27,13 @@ async function getFraudAnalytics(
       select: { id: true, product_ids: true },
     });
     const brandTagIds = allTags
-      .filter((tag) => {
+      .filter((tag: { id: number; product_ids: unknown }) => {
         const tagProductIds = Array.isArray(tag.product_ids)
           ? (tag.product_ids as number[])
           : [];
         return tagProductIds.some((id) => productIds.includes(id));
       })
-      .map((t) => t.id);
+      .map((t: { id: number; product_ids: unknown }) => t.id);
     tagFilter = { tag_id: { in: brandTagIds } };
   }
 
@@ -213,8 +213,8 @@ async function getFraudAnalytics(
   });
 
   const topScanLocations = locationGroups
-    .filter((g) => g.location_name)
-    .map((g) => ({
+    .filter((g: (typeof locationGroups)[number]) => g.location_name)
+    .map((g: (typeof locationGroups)[number]) => ({
       location: g.location_name!,
       count: g._count,
     }));
@@ -347,7 +347,7 @@ export async function getAIAgentContext(
       where: { brand_id: brandId },
       select: { id: true },
     });
-    const productIds = brandProducts.map((p) => p.id);
+    const productIds = brandProducts.map((p: { id: number }) => p.id);
 
     // Count tags that contain any of the brand's products
     const allTags = await prisma.tag.findMany({
@@ -409,14 +409,14 @@ export async function getAIAgentContext(
     ]);
 
     recentActivity = {
-      products: recentProducts.map((p) => ({
+      products: recentProducts.map((p: (typeof recentProducts)[number]) => ({
         id: p.id,
         code: p.code,
         name:
           (p.metadata as unknown as ProductMetadata)?.name || 'Unnamed Product',
         status: p.status,
       })),
-      tags: recentTags.map((t) => ({
+      tags: recentTags.map((t: (typeof recentTags)[number]) => ({
         id: t.id,
         code: t.code,
         publishStatus: t.publish_status,
@@ -456,11 +456,13 @@ export async function getAIAgentContext(
         where: { brand_id: brandId },
         select: { id: true },
       })
-      .then((products) => products.map((p) => p.id));
+      .then((products: { id: number }[]) =>
+        products.map((p: { id: number }) => p.id)
+      );
 
     // Filter tags that belong to this brand
     const brandTags = allTags
-      .filter((tag) => {
+      .filter((tag: (typeof allTags)[number]) => {
         const tagProductIds = Array.isArray(tag.product_ids)
           ? (tag.product_ids as number[])
           : [];
@@ -469,14 +471,14 @@ export async function getAIAgentContext(
       .slice(0, 5);
 
     recentActivity = {
-      products: recentProducts.map((p) => ({
+      products: recentProducts.map((p: (typeof recentProducts)[number]) => ({
         id: p.id,
         code: p.code,
         name:
           (p.metadata as unknown as ProductMetadata)?.name || 'Unnamed Product',
         status: p.status,
       })),
-      tags: brandTags.map((t) => ({
+      tags: brandTags.map((t: (typeof brandTags)[number]) => ({
         id: t.id,
         code: t.code,
         publishStatus: t.publish_status,
@@ -492,7 +494,7 @@ export async function getAIAgentContext(
       where: { brand_id: brandId },
       select: { id: true },
     });
-    productIdsForFraud = brandProducts.map((p) => p.id);
+    productIdsForFraud = brandProducts.map((p: { id: number }) => p.id);
   }
 
   const fraudAnalytics = await getFraudAnalytics(isAdmin, productIdsForFraud);

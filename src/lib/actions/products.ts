@@ -408,13 +408,15 @@ export async function getProductStats() {
   }
 
   // Filter to only count user's products in tags
-  let productsWithTags = 0;
+  let productsWithTags: number;
   if (!isAdmin && userBrandId) {
     const userProducts = await prisma.product.findMany({
       where: { brand_id: userBrandId },
       select: { id: true },
     });
-    const userProductIds = new Set(userProducts.map((p) => p.id));
+    const userProductIds = new Set(
+      userProducts.map((p: { id: number }) => p.id)
+    );
     productsWithTags = [...productIdsInTags].filter((id) =>
       userProductIds.has(id)
     ).length;

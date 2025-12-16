@@ -12,6 +12,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, TrendingUp, Calendar, ImageIcon } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   formatAddress,
   getTxExplorerUrl,
@@ -117,10 +118,12 @@ async function NFTTable() {
                 <TableCell>
                   <div className="w-12 h-12 rounded-lg overflow-hidden bg-gradient-to-br from-purple-500/20 to-pink-500/20">
                     {nft.imageUrl ? (
-                      <img
+                      <Image
                         src={nft.imageUrl}
                         alt={`NFT #${nft.tokenId}`}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        unoptimized
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 import {
   Sparkles,
   Wallet,
@@ -186,11 +187,13 @@ export function NFTClaimCard({
         <CardContent>
           <div className="flex items-center gap-4">
             {nft?.imageUrl && (
-              <div className="w-20 h-20 rounded-lg overflow-hidden bg-gradient-to-br from-purple-500/20 to-pink-500/20">
-                <img
+              <div className="w-20 h-20 rounded-lg overflow-hidden bg-gradient-to-br from-purple-500/20 to-pink-500/20 relative">
+                <Image
                   src={nft.imageUrl}
                   alt="NFT"
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  unoptimized
                 />
               </div>
             )}
@@ -222,11 +225,13 @@ export function NFTClaimCard({
         <CardContent>
           <div className="flex items-start gap-4">
             {nftResult.imageUrl && (
-              <div className="w-24 h-24 rounded-lg overflow-hidden bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex-shrink-0">
-                <img
+              <div className="w-24 h-24 rounded-lg overflow-hidden bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex-shrink-0 relative">
+                <Image
                   src={nftResult.imageUrl}
                   alt="Your NFT"
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  unoptimized
                 />
               </div>
             )}

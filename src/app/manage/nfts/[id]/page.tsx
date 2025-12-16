@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getNFTById } from '@/lib/actions/nfts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+
 import { Button } from '@/components/ui/button';
 import {
   ArrowLeft,
@@ -66,10 +67,12 @@ export default async function NFTDetailPage({ params }: NFTDetailPageProps) {
           <CardContent className="p-0">
             <div className="aspect-square bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center">
               {nft.imageUrl ? (
-                <img
+                <Image
                   src={nft.imageUrl}
                   alt={`NFT #${nft.tokenId}`}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  unoptimized
                 />
               ) : (
                 <ImageIcon className="h-24 w-24 text-muted-foreground" />
@@ -185,10 +188,13 @@ export default async function NFTDetailPage({ params }: NFTDetailPageProps) {
                     </span>
                     <div className="flex items-center gap-2">
                       {nft.brand.logoUrl && (
-                        <img
+                        <Image
                           src={nft.brand.logoUrl}
                           alt={nft.brand.name}
-                          className="w-6 h-6 rounded object-cover"
+                          width={24}
+                          height={24}
+                          className="rounded object-cover"
+                          unoptimized
                         />
                       )}
                       <span className="font-medium">{nft.brand.name}</span>

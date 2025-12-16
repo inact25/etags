@@ -88,7 +88,7 @@ export async function getOnboardingStatus() {
   // Check if the tag contains products from user's brand
   let hasTagForBrand = false;
   if (tag && user.brand?.products) {
-    const productIds = user.brand.products.map((p) => p.id);
+    const productIds = user.brand.products.map((p: { id: number }) => p.id);
     const tagProductIds = tag.product_ids as number[];
     hasTagForBrand = tagProductIds.some((id) => productIds.includes(id));
   }
@@ -322,7 +322,9 @@ export async function createOnboardingTag(
     const productId = parseInt(productIdStr);
 
     // Verify product belongs to user's brand
-    const validProduct = user.brand.products.find((p) => p.id === productId);
+    const validProduct = user.brand.products.find(
+      (p: { id: number }) => p.id === productId
+    );
     if (!validProduct) {
       return { error: 'Produk tidak valid' };
     }
@@ -394,9 +396,11 @@ export async function getOnboardingProducts() {
     return [];
   }
 
-  return user.brand.products.map((p) => ({
-    id: p.id,
-    code: p.code,
-    name: (p.metadata as { name?: string })?.name || 'Produk Tanpa Nama',
-  }));
+  return user.brand.products.map(
+    (p: { id: number; code: string; metadata: unknown }) => ({
+      id: p.id,
+      code: p.code,
+      name: (p.metadata as { name?: string })?.name || 'Produk Tanpa Nama',
+    })
+  );
 }

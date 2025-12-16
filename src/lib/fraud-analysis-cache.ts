@@ -242,10 +242,12 @@ export async function getEnhancedFraudAnalysis(
   }
 
   // Build scan history
-  const uniqueScanners = new Set(tag.scans.map((s) => s.fingerprint_id)).size;
+  const uniqueScanners = new Set(
+    tag.scans.map((s: (typeof tag.scans)[number]) => s.fingerprint_id)
+  ).size;
   const recentLocations = tag.scans
-    .filter((s) => s.location_name)
-    .map((s) => s.location_name as string)
+    .filter((s: (typeof tag.scans)[number]) => s.location_name)
+    .map((s: (typeof tag.scans)[number]) => s.location_name as string)
     .slice(0, 5);
 
   const scanHistory = {

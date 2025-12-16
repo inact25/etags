@@ -1,5 +1,5 @@
 import { prisma } from './db';
-import { uploadFile, getFileUrl } from './r2';
+import { getFileUrl, uploadFile } from './r2';
 import { generateQRCodeBuffer } from './qr-generator';
 import { createTagOnChain } from './tag-sync';
 import { BLOCKCHAIN_CONFIG } from './constants';
@@ -90,23 +90,25 @@ async function buildTagMetadata(tagId: number): Promise<TagStaticMetadata> {
     },
   });
 
-  const productInfos: TagProductInfo[] = products.map((product) => {
-    const metadata = product.metadata as ProductMetadata;
-    return {
-      id: product.id,
-      code: product.code,
-      name: metadata.name || 'Unknown Product',
-      description: metadata.description || '',
-      category: metadata.category as string | undefined,
-      price: metadata.price as number | undefined,
-      images: metadata.images || [],
-      brand: {
-        id: product.brand.id,
-        name: product.brand.name,
-        logo_url: product.brand.logo_url,
-      },
-    };
-  });
+  const productInfos: TagProductInfo[] = products.map(
+    (product: (typeof products)[number]) => {
+      const metadata = product.metadata as ProductMetadata;
+      return {
+        id: product.id,
+        code: product.code,
+        name: metadata.name || 'Unknown Product',
+        description: metadata.description || '',
+        category: metadata.category as string | undefined,
+        price: metadata.price as number | undefined,
+        images: metadata.images || [],
+        brand: {
+          id: product.brand.id,
+          name: product.brand.name,
+          logo_url: product.brand.logo_url,
+        },
+      };
+    }
+  );
 
   const tagMetadata = tag.metadata as TagMetadata;
   const verifyUrl = getVerifyUrl(tag.code);
@@ -120,7 +122,8 @@ async function buildTagMetadata(tagId: number): Promise<TagStaticMetadata> {
   };
 
   // Placeholder URLs - will be updated after upload
-  const staticMetadata: TagStaticMetadata = {
+
+  return {
     version: '1.0',
     tag: {
       code: tag.code,
@@ -141,8 +144,6 @@ async function buildTagMetadata(tagId: number): Promise<TagStaticMetadata> {
       },
     },
   };
-
-  return staticMetadata;
 }
 
 /**

@@ -69,7 +69,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     where: { brand_id: brandId },
     select: { id: true },
   });
-  const productIds = brandProducts.map((p) => p.id);
+  const productIds = brandProducts.map((p: { id: number }) => p.id);
   const productIdsSet = new Set(productIds);
 
   // Count tags that contain any of the brand's products
@@ -98,15 +98,16 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   try {
     // Get tags for this brand and count their NFTs
     const brandTagIds = allTags
-      .filter((tag) => {
+      .filter((tag: { product_ids: unknown; is_stamped: number }) => {
         const tagProductIds = Array.isArray(tag.product_ids)
           ? (tag.product_ids as number[])
           : [];
         return tagProductIds.some((id) => productIdsSet.has(id));
       })
-      .map((_, index) => index); // Just need count
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    nftsCount = brandTagIds.length > 0 ? await (prisma as any).tagNFT.count() : 0;
+      .map((_: unknown, index: number) => index); // Just need count
+    nftsCount =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      brandTagIds.length > 0 ? await (prisma as any).tagNFT.count() : 0;
   } catch {
     // TagNFT table may not exist yet
   }

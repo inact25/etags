@@ -106,6 +106,16 @@ Server actions are organized in `src/lib/actions/`:
 **Public Routes:**
 
 - `/` - Public landing page
+- `/about` - About Etags, mission, vision, team
+- `/features` - Comprehensive features showcase
+- `/pricing` - Pricing plans and FAQs
+- `/showcase` - Success stories and testimonials
+- `/careers` - Job openings and company culture
+- `/contact` - Contact form and information
+- `/blog` - Blog articles from Ghost CMS
+- `/privacy` - Privacy policy
+- `/terms` - Terms and conditions
+- `/security` - Security practices and policies
 - `/login` - Login page (redirects to /manage if authenticated)
 - `/register` - User registration page
 - `/scan` - QR code scanner for tag verification
@@ -249,3 +259,4 @@ Copy `.env.example` to `.env` and configure:
 - `KOLOSAL_API_KEY` - Kolosal AI for fraud detection
 - `BASESCAN_API_KEY` - BaseScan API for explorer features
 - `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` - Mapbox token for scan location maps
+- `NEXT_PUBLIC_TOKEN` - Ghost CMS Content API key for blog posts

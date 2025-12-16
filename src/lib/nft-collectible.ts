@@ -5,10 +5,10 @@
 
 import { ethers } from 'ethers';
 import { prisma } from './db';
-import { uploadFile, getFileUrl } from './r2';
+import { uploadFile } from './r2';
 import {
-  generateNFTImage,
   generateFallbackImage,
+  generateNFTImage,
   type ProductInfo,
 } from './gemini-image';
 import { BLOCKCHAIN_CONFIG } from './constants';
@@ -287,7 +287,7 @@ export async function getTagProductInfo(
     tag: {
       id: tag.id,
       code: tag.code,
-      products: products.map((p) => ({
+      products: products.map((p: (typeof products)[number]) => ({
         code: p.code,
         metadata: p.metadata as {
           name?: string;
