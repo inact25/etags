@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -121,10 +122,13 @@ export function NewTicketForm({
                     >
                       <CardContent className="flex items-center gap-4 p-4">
                         {nft.image_url && (
-                          <img
+                          <Image
                             src={nft.image_url}
                             alt="NFT"
-                            className="w-16 h-16 rounded-xl object-cover ring-2 ring-[#A8A8A8]/20 group-hover:ring-[#2B4C7E]/40 transition-all"
+                            width={64}
+                            height={64}
+                            className="rounded-xl object-cover ring-2 ring-[#A8A8A8]/20 group-hover:ring-[#2B4C7E]/40 transition-all"
+                            unoptimized
                           />
                         )}
                         <div className="flex-1 min-w-0">

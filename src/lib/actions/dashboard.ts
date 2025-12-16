@@ -105,8 +105,8 @@ export async function getDashboardStats(): Promise<DashboardStats> {
         return tagProductIds.some((id) => productIdsSet.has(id));
       })
       .map((_: unknown, index: number) => index); // Just need count
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     nftsCount =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       brandTagIds.length > 0 ? await (prisma as any).tagNFT.count() : 0;
   } catch {
     // TagNFT table may not exist yet

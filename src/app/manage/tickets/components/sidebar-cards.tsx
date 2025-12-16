@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   FileText,
@@ -165,11 +166,13 @@ export function ProductSidebar({ tag, products }: ProductSidebarProps) {
         {tag.nft?.image_url && (
           <div>
             <p className="text-xs text-gray-500 mb-2">NFT Collectible</p>
-            <div className="relative rounded-xl overflow-hidden border border-gray-100">
-              <img
+            <div className="relative rounded-xl overflow-hidden border border-gray-100 aspect-square">
+              <Image
                 src={tag.nft.image_url}
                 alt="NFT"
-                className="w-full aspect-square object-cover"
+                fill
+                className="object-cover"
+                unoptimized
               />
             </div>
           </div>

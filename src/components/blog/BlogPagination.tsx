@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -18,7 +18,6 @@ export function BlogPagination({
   hasPrev,
 }: BlogPaginationProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const navigateToPage = (page: number) => {
     // Build the URL with search params
