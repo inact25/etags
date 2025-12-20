@@ -11,6 +11,13 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
   QrCode,
   FileJson,
   Link as LinkIcon,
@@ -108,16 +115,40 @@ export function TagResourcesCard({ tag, tagUrls }: TagResourcesCardProps) {
               </div>
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
-              <Button type="button" variant="outline" size="sm" asChild>
-                <a
-                  href={`/api/tags/${tag.code}/designed`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <ImageIcon className="mr-2 h-4 w-4" />
-                  Pratinjau
-                </a>
-              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button type="button" variant="outline" size="sm">
+                    <ImageIcon className="mr-2 h-4 w-4" />
+                    Pratinjau
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-fit! p-0 gap-0">
+                  <DialogHeader className="p-4 pb-3">
+                    <DialogTitle className="text-center">
+                      Pratinjau Tag Berdesain
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div>
+                    <Image
+                      src={`/api/tags/${tag.code}/designed`}
+                      alt={`Tag berdesain untuk ${tag.code}`}
+                      width={400}
+                      height={400}
+                    />
+                  </div>
+                  <div className="p-4 py-2 border-t">
+                    <Button type="button" size="sm" className="w-full" asChild>
+                      <a
+                        href={`/api/tags/${tag.code}/designed?download=true`}
+                        download
+                      >
+                        <Download className="mr-2 h-4 w-4" />
+                        Unduh Tag Berdesain
+                      </a>
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
               <Button type="button" size="sm" asChild>
                 <a
                   href={`/api/tags/${tag.code}/designed?download=true`}
