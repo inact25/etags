@@ -329,7 +329,7 @@ export function Sidebar({ isAdmin }: SidebarProps) {
       </div>
 
       {/* Desktop sidebar */}
-      <aside className="hidden w-64 shrink-0 border-r border-slate-200/50 dark:border-slate-800/50 bg-white/40 dark:bg-slate-900/40 backdrop-blur-sm md:block">
+      <aside className="hidden w-64 shrink-0 border-r border-slate-200/50 dark:border-slate-800/50 bg-white/40 dark:bg-slate-900/40 backdrop-blur-sm md:block sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
         <NavLinks items={filteredItems} pathname={pathname} />
       </aside>
     </>
